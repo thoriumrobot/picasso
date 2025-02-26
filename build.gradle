@@ -15,24 +15,28 @@ buildscript {
     okio: "com.squareup.okio:okio:${versions.okio}",
     mockWebServer: "com.squareup.okhttp3:mockwebserver:${versions.okhttp}",
     pollexor: 'com.squareup:pollexor:2.0.4',
+    // AndroidX
     androidxAnnotations: 'androidx.annotation:annotation:1.0.0',
     androidxCore: 'androidx.core:core:1.0.0',
     androidxExifInterface: 'androidx.exifinterface:exifinterface:1.0.0',
     androidxFragment: 'androidx.fragment:fragment:1.0.0',
     androidxLifecycle: 'androidx.lifecycle:lifecycle-common:2.0.0',
+    // Testing / ErrorProne / NullAway
     errorProne: 'com.google.errorprone:error_prone_core:2.3.2',
     junit: 'junit:junit:4.12',
     truth: 'com.google.truth:truth:0.42',
     robolectric: 'org.robolectric:robolectric:4.0.1',
     mockito: 'org.mockito:mockito-core:2.23.0',
-    nullaway: 'com.uber.nullaway:nullaway:0.6.0'
+    nullaway: 'com.uber.nullaway:nullaway:0.6.4'
   ]
 
   ext.isCi = "true" == System.getenv('CI')
 
   repositories {
     google()
+    // jcenter() // Removed
     maven { url 'https://plugins.gradle.org/m2/' }
+    mavenCentral()
   }
 
   dependencies {
@@ -45,9 +49,11 @@ buildscript {
 apply plugin: 'com.github.ben-manes.versions'
 
 subprojects {
+  // Use mavenCentral instead of jcenter
   repositories {
     google()
-    jcenter()
+    // jcenter() // Removed
+    mavenCentral()
   }
 
   tasks.withType(JavaCompile) {
@@ -70,7 +76,6 @@ subprojects {
           '-XepOpt:NullAway:AnnotatedPackages=com.squareup.picasso3'
       ]
     }
-
   }
 
   tasks.withType(Test) {
@@ -105,6 +110,15 @@ subprojects {
   apply plugin: 'net.ltgt.errorprone'
 
   dependencies {
+    // Ensure these AndroidX + OkHttp/Okio libs are actually pulled in
+    implementation deps.androidxAnnotations
+    implementation deps.androidxCore
+    implementation deps.androidxExifInterface
+    implementation deps.androidxLifecycle
+
+    implementation deps.okhttp
+    implementation deps.okio
+
     errorprone deps.errorProne
   }
 }
